@@ -7,7 +7,7 @@ app.use(bodyParser.json());
 
 const shortid = require("shortid");
 
-const db = require('monk')(process.env.MONGO_URL || "localhost:27017/nono2");
+const db = require('monk')(process.env.MONGODB_URI || "localhost:27017/nono2");
 const games = db.get("games");
 
 const router = express.Router();
