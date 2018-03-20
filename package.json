@@ -1,0 +1,10 @@
+{
+    "name": "nono2-server",
+    "main": "server.js",
+    "dependencies": {
+        "body-parser": "~1.0.1",
+        "express": "~4.0.0",
+        "monk": "^6.0.5",
+        "shortid": "^2.2.8"
+    }
+}
