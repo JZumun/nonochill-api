@@ -19,11 +19,18 @@ const fail = (res, reason) => res.status(400).json({
 	reason
 });
 
+router.use((req,res,next)=>{
+	console.log("Getting request");
+	next();
+})
 router.get("/", (req, res) => {
 	res.json({success: true});
 })
 router.get("/:game", (req, res) => {
 	const id = req.params.game;
+	if (!shortid.isValid(id)) {
+		return fail(res, "Invalid game id");
+	}
 	console.log(`Retrieving game ${id}`);
 	games.findOne({id})
 		.then(doc => {
