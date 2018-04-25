@@ -24,7 +24,15 @@ router.use((req,res,next)=>{
 	next();
 })
 router.get("/", (req, res) => {
-	res.json({success: true});
+	games.find({}, {
+		fields: { id: 1 },
+		limit: 10
+	}).then((docs) => {
+		res.json({
+			success: true,
+			games: docs
+		});
+	})
 })
 router.get("/:game", (req, res) => {
 	const id = req.params.game;
