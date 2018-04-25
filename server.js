@@ -2,6 +2,7 @@ const express    = require('express');
 const app        = express();
 const bodyParser = require('body-parser');
 const cors = require("cors");
+const deserialize = require("./Serializer").deserialize;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -25,12 +26,20 @@ router.use((req,res,next)=>{
 })
 router.get("/", (req, res) => {
 	games.find({}, {
-		fields: { id: 1, "_id": 0 },
+		fields: { id: 1, "_id": 0, game: 1 },
 		limit: 10
 	}).then((docs) => {
 		res.json({
 			success: true,
-			games: docs.map(doc => doc.id)
+			games: docs.map(doc => {
+				try {
+					const { width, colors, colorScheme } = deserialize(doc.game);
+					return { id: doc.id, width, colors, colorScheme }
+				} catch(e) {
+					return null
+				}
+
+			})
 		});
 	})
 })
