@@ -25,12 +25,12 @@ router.use((req,res,next)=>{
 })
 router.get("/", (req, res) => {
 	games.find({}, {
-		fields: { id: 1 },
+		fields: { id: 1, "_id": 0 },
 		limit: 10
 	}).then((docs) => {
 		res.json({
 			success: true,
-			games: docs
+			games: docs.map(doc => doc.id)
 		});
 	})
 })
