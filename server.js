@@ -27,7 +27,8 @@ router.use((req,res,next)=>{
 router.get("/", (req, res) => {
 	games.find({}, {
 		fields: { id: 1, "_id": 0, game: 1 },
-		limit: 10
+		limit: 10,
+		sort: { "_id": -1 }
 	}).then((docs) => {
 		res.json({
 			success: true,
