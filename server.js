@@ -1,16 +1,25 @@
-const express    = require('express');
+const express    = require("express");
 const app        = express();
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 const cors = require("cors");
 const deserialize = require("./Serializer").deserialize;
 
+const upload = require("multer")({
+	fileFilter(req, file, cb) {
+		return cb(null, ["image/jpeg","image/png"].includes(file.mimetype));
+	}
+});
+
+const imageProcessor = require("./ImageProcessor");
+
+app.set("view engine", "pug");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
 
 const shortid = require("shortid");
 
-const db = require('monk')(process.env.MONGODB_URI || "localhost:27017/nono2");
+const db = require("monk")(process.env.MONGODB_URI || "localhost:27017/nono2");
 const games = db.get("games");
 
 const router = express.Router();
@@ -23,7 +32,7 @@ const fail = (res, reason) => res.status(400).json({
 router.use((req,res,next)=>{
 	console.log("Getting request");
 	next();
-})
+});
 router.get("/", (req, res) => {
 	games.find({}, {
 		fields: { id: 1, "_id": 0, game: 1 },
@@ -35,15 +44,34 @@ router.get("/", (req, res) => {
 			games: docs.map(doc => {
 				try {
 					const { width, colors, colorScheme } = deserialize(doc.game);
-					return { id: doc.id, width, colors, colorScheme }
+					return { id: doc.id, width, colors, colorScheme };
 				} catch(e) {
-					return null
+					return null;
 				}
 
 			})
 		});
-	})
-})
+	});
+});
+router.get("/test", (req, res) => {
+	res.render("index");
+});
+
+router.post("/image", upload.single("image"), (req, res) => {
+	const size = Number.parseInt(req.body.size) || 10;
+	const color = (Number.parseInt(req.body.colors) || 1) + 1;
+
+	if (!req.file || !req.file.buffer) {
+		fail(res, "Upload a valid file");
+	}
+
+	imageProcessor.imageToArray(req.file.buffer, size, color).then(colors => {
+		res.json(colors);
+	}).catch(err => {
+		return fail(res, err.message);
+	});
+});
+
 router.get("/:game", (req, res) => {
 	const id = req.params.game;
 	if (!shortid.isValid(id)) {
@@ -56,9 +84,9 @@ router.get("/:game", (req, res) => {
 				res.json({
 					success: true,
 					game: doc.game
-				})
-			} else fail(res, "Nothing found.")
-		}).catch(e => fail(res, e))
+				});
+			} else fail(res, "Nothing found.");
+		}).catch(e => fail(res, e));
 });
 router.post("/", (req, res) => {
 	const id = shortid.generate();
@@ -76,9 +104,11 @@ router.post("/", (req, res) => {
 		res.json({
 			success: true,
 			id: doc.id
-		})
+		});
 	}).catch(e => fail(res, e));
 });
+
+
 app.use("/", router);
 
 const port = process.env.PORT || 8080;

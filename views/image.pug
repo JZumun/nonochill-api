@@ -1,0 +1,9 @@
+
+html
+	head
+	body
+		table
+			for row in colors
+				tr
+					for c in row
+						td(style=`background:${c ? scheme[c - 1] : lightest};`, height="10", width="10")
