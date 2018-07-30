@@ -4,7 +4,7 @@ const quantize = require("quantize");
 const equals = (a1,a2) => a1.every((x,i)=>a2[i] == x);
 const luminance = ([r,g,b]) => 0.2126*r + 0.7152*g + 0.0722*b;
 
-const toHex = int => "#" + int.toString(16).padStart(8, "0");
+const toHex = int => int.toString(16).padStart(2, "0");
 
 const intToArr = int => {
 	const color = jimp.intToRGBA(int);
@@ -12,8 +12,8 @@ const intToArr = int => {
 	return [ color.r, color.g, color.b ];
 };
 
-const arrToHex = ([r,g,b]) => {
-	return toHex(jimp.rgbaToInt(r,g,b,255));
+const arrToHex = (rgb) => {
+	return "#" + rgb.map(toHex).join("");
 };
 
 const generateScheme = (image, max) => {
