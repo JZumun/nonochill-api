@@ -66,6 +66,8 @@ router.post("/image", upload.single("image"), (req, res) => {
 	}
 
 	imageProcessor.imageToArray(req.file.buffer, size, color).then(colors => {
+		console.log(colors);
+		colors.success = true;
 		res.json(colors);
 	}).catch(err => {
 		return fail(res, err.message);
