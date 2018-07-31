@@ -73,13 +73,14 @@ const generateColorArray = (image, colorScheme) => {
 	return {colors, scheme, lightest: arrToHex(lightest)};
 };
 
+// returns: { colors: Array<Array<0-5>>, scheme: Array<ColorHexStrings>, lightest: ColorHexString }
 const imageToArray = (buffer, size, max=6) => {
 	return jimp.read(buffer).then(image => {
 		const orig = image.clone();
 		const small = image
 			.scaleToFit(size,size, jimp.RESIZE_BILINEAR);
 
-		const colorScheme = generateScheme(orig, max);
+		const colorScheme = generateScheme(small, max);
 		return generateColorArray(small, colorScheme);
 	});
 };

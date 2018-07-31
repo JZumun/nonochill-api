@@ -30,12 +30,12 @@ const fail = (res, reason) => res.status(400).json({
 });
 
 router.use((req,res,next)=>{
-	console.log("Getting request");
+	console.log("Getting request", req.body);
 	next();
 });
 router.get("/", (req, res) => {
 	games.find({}, {
-		fields: { id: 1, "_id": 0, game: 1 },
+		fields: { id: 1, "_id": 0, game: 1, label: 1 },
 		limit: 10,
 		sort: { "_id": -1 }
 	}).then((docs) => {
@@ -44,7 +44,7 @@ router.get("/", (req, res) => {
 			games: docs.map(doc => {
 				try {
 					const { width, colors, colorScheme } = deserialize(doc.game);
-					return { id: doc.id, width, colors, colorScheme };
+					return { id: doc.id, width, colors, colorScheme, label: doc.label };
 				} catch(e) {
 					return null;
 				}
@@ -52,9 +52,6 @@ router.get("/", (req, res) => {
 			})
 		});
 	});
-});
-router.get("/test", (req, res) => {
-	res.render("index");
 });
 
 router.post("/image", upload.single("image"), (req, res) => {
@@ -85,23 +82,31 @@ router.get("/:game", (req, res) => {
 			if (doc !== null) {
 				res.json({
 					success: true,
-					game: doc.game
+					game: doc.game,
+					label: doc.label
 				});
 			} else fail(res, "Nothing found.");
 		}).catch(e => fail(res, e));
 });
+
+const safeLabel = label => label.substring(0,20).replace(/[^A-Za-z\-_0-9À-ž\s]/g,"");
+const cleanLabel = label => safeLabel(label).toLowerCase().replace(/\s/g,"-").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+
 router.post("/", (req, res) => {
 	const id = shortid.generate();
 	const game = req.body.game;
+	const label = safeLabel(req.body.label || "");
+	const fullId = `${label ? cleanLabel(label) + "-" : ""}${id}`;
 
 	if (game == null || game.trim().length == 0) {
 		return fail(res, "Empty input");
 	}
 
-	console.log(`Saving game ${id} - ${game}`);
+	console.log(`Saving game ${fullId} - ${game}`);
 	games.insert({
-		id,
-		game
+		id: fullId,
+		game,
+		label
 	}, {castIds: false}).then(doc => {
 		res.json({
 			success: true,
