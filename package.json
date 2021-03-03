@@ -12,6 +12,6 @@
         "shortid": "^2.2.8"
     },
     "devDependencies": {
-        "pug": "^2.0.3"
+        "pug": "^3.0.1"
     }
 }
