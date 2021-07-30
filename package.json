@@ -1,17 +1,25 @@
 {
     "name": "nono2-server",
-    "main": "server.js",
+    "main": "src/server.js",
+    "type": "module",
+    "engines": {
+        "node": "16.x"
+    },
     "dependencies": {
-        "body-parser": "~1.0.1",
         "cors": "^2.8.4",
+        "dotenv": "^10.0.0",
         "express": "^4.17.1",
         "jimp": "^0.8.5",
-        "monk": "^6.0.5",
         "multer": "^1.3.1",
+        "pg": "^8.7.1",
         "quantize": "^1.0.2",
         "shortid": "^2.2.8"
     },
     "devDependencies": {
-        "pug": "^2.0.3"
+        "node-pg-migrate": "^5.10.0"
+    },
+    "scripts": {
+        "migrate": "node-pg-migrate",
+        "start": "node src/server.js"
     }
 }
