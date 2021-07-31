@@ -26,7 +26,7 @@ export class GamesDatabase {
 
   async retrieve(id) {
     const client = await this.#pool.connect();
-    const result = await client.query("SELECT * FROM games WHERE shortId=$1", [id]);
+    const result = await client.query("SELECT * FROM games WHERE id=$1", [id]);
 
     return result.rows[0];
   }
