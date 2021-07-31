@@ -7,9 +7,8 @@ exports.shorthands = undefined;
  */
 exports.up = pgm => {
   pgm.createTable("games", {
-    id: "id",
-    shortId: {
-      unique: true,
+    id: {
+      primaryKey: true,
       type: "text",
       notNull: true,
     },
@@ -18,7 +17,12 @@ exports.up = pgm => {
       notNull: true,
     },
     label: "text",
+    created: {
+      type: "timestamptz",
+      default: pgm.func("current_timestamp"),
+    },
   });
+  pgm.addIndex("games", "created");
 };
 
 /**

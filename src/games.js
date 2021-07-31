@@ -15,7 +15,7 @@ export class GamesDatabase {
     return result.rows.map(row => {
       const { width, colors, colorScheme } = deserialize(row.game);
       return {
-        id: row.shortId,
+        id: row.id,
         width,
         colors,
         colorScheme,
@@ -37,10 +37,10 @@ export class GamesDatabase {
     const fullId = `${label ? `${kebabify(normalizedLabel)}-` : ""}${id}`;
 
     const client = await this.#pool.connect();
-    await client.query("INSERT INTO games (shortId, game, label) VALUES ($1,$2,$3)", [
+    await client.query("INSERT INTO games (id, game, label) VALUES ($1,$2,$3)", [
       fullId,
       game,
-      normalize,
+      normalizedLabel,
     ]);
 
     return fullId;
