@@ -10,8 +10,9 @@ export class GamesDatabase {
   });
 
   async retrieveAll() {
-    const client = await this.#pool.connect();
-    const result = await client.query("SELECT * FROM games ORDER BY id DESC LIMIT 10 ");
+    const result = await this.#pool.query(
+      "SELECT * FROM games ORDER BY id DESC LIMIT 10"
+    );
     return result.rows.map(row => {
       const { width, colors, colorScheme } = deserialize(row.game);
       return {
@@ -25,8 +26,7 @@ export class GamesDatabase {
   }
 
   async retrieve(id) {
-    const client = await this.#pool.connect();
-    const result = await client.query("SELECT * FROM games WHERE id=$1", [id]);
+    const result = await this.#pool.query("SELECT * FROM games WHERE id=$1", [id]);
 
     return result.rows[0];
   }
@@ -36,8 +36,7 @@ export class GamesDatabase {
     const normalizedLabel = label ? normalize(label) : "";
     const fullId = `${label ? `${kebabify(normalizedLabel)}-` : ""}${id}`;
 
-    const client = await this.#pool.connect();
-    await client.query("INSERT INTO games (id, game, label) VALUES ($1,$2,$3)", [
+    await this.#pool.query("INSERT INTO games (id, game, label) VALUES ($1,$2,$3)", [
       fullId,
       game,
       normalizedLabel,
