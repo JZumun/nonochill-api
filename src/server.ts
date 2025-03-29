@@ -84,10 +84,18 @@ imageRouter.post(
   },
 );
 
-app.use(logger());
-app.use(cors({
-  origin: Deno.env.get("NONOCHILL_FE_ORIGIN") || "http://localhost:8001",
-}));
+const FE_ORIGIN = Deno.env.get("NONOCHILL_FE_ORIGIN") ||
+  "https://nonochill.jzumun.ph";
+console.log(`Listening for requests from ${FE_ORIGIN}`);
+app.use(
+  "/*",
+  (ctx, next) => {
+    console.log("hello");
+    const handler = cors({ origin: FE_ORIGIN });
+    return handler(ctx, next);
+  },
+);
+app.use("/*", logger());
 app.route("/", gameRouter);
 app.route("/image", imageRouter);
 
