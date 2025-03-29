@@ -4,6 +4,8 @@
 	RuleGroup: [RuleList] => [serialize(ruleGroup)]
 **/
 
+import { Buffer } from "node:buffer";
+
 const btoa = str => Buffer.from(str).toString("base64");
 const atob = str => Buffer.from(str, "base64").toString();
 const serializeRule = rule => `{${rule.val},${rule.count}}`;
