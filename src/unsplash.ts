@@ -52,22 +52,35 @@ async function cache(image: Image, kv: Deno.Kv) {
 }
 
 async function retrieveFromCache(kv: Deno.Kv) {
-  return await kv.get<CachedImage>(IMAGE_IDX);
+  const image = await kv.get<CachedImage>(IMAGE_IDX);
+  if (image && image.value) {
+    return image.value;
+  } else return null;
 }
 
 export default async function retrieveImage(kv: Deno.Kv) {
   const cachedImage = await retrieveFromCache(kv);
 
-  if (cachedImage && cachedImage.value) {
-    const { image, timestamp } = cachedImage.value;
+  if (cachedImage) {
+    const { image, timestamp } = cachedImage;
     if (differenceInMinutes(new Date(), timestamp) < 5) {
       console.log("returning cached image");
       return image;
     }
   }
 
-  console.log("retrieving new image");
-  const image = await retrieveImageFromUnsplash();
-  await cache(image, kv);
-  return image;
+  try {
+    console.log("retrieving new image");
+    const image = await retrieveImageFromUnsplash();
+    await cache(image, kv);
+    return image;
+  } catch (err) {
+    console.error(err);
+    if (cachedImage) {
+      console.log("returning cached image");
+      return cachedImage.image;
+    } else {
+      throw new Error("unable to retrieve bg image");
+    }
+  }
 }
