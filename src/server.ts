@@ -77,9 +77,11 @@ imageRouter.post(
     const size = Number.parseInt(body.size) || 10;
     const color = (Number.parseInt(body.colors) || 1) + 1;
 
+    const imageBuffer = await body.image.arrayBuffer();
+    const settings = await imageToArray(imageBuffer, size, color);
     return ctx.json({
       success: true,
-      ...imageToArray(await body.image.arrayBuffer(), size, color),
+      ...settings,
     });
   },
 );
