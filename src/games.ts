@@ -1,6 +1,6 @@
 import { deserialize } from "./serializer.js";
 import { nanoid as shortid } from "nanoid";
-import { ulid } from "@std/ulid"
+import { ulid } from "@std/ulid";
 
 const GAMES_TABLE = "games";
 const GAMES_BY_ID_IDX = [GAMES_TABLE, "id"];
@@ -15,17 +15,15 @@ export interface GameEntry {
 export class GamesDatabase {
   #pool: Deno.Kv;
 
-  static async initialize() {
-    const pool = await Deno.openKv();
-    return new GamesDatabase(pool);
-  }
-
   constructor(pool: Deno.Kv) {
     this.#pool = pool;
   }
 
   async retrieveAll() {
-    const result = this.#pool.list<GameEntry>({ prefix: GAMES_BY_DATE_IDX }, { limit: 10, reverse: true });
+    const result = this.#pool.list<GameEntry>({ prefix: GAMES_BY_DATE_IDX }, {
+      limit: 10,
+      reverse: true,
+    });
 
     const games = [];
     for await (const row of result) {
@@ -61,14 +59,15 @@ export class GamesDatabase {
 
     await Promise.all([
       this.#pool.set([...GAMES_BY_ID_IDX, fullId], entry),
-      this.#pool.set([...GAMES_BY_DATE_IDX, did], entry)
-    ])
+      this.#pool.set([...GAMES_BY_DATE_IDX, did], entry),
+    ]);
 
     return fullId;
   }
 }
 
-const normalize = (label: string) => label.substring(0, 20).replace(/[^A-Za-z\-_0-9À-ž\s]/g, "");
+const normalize = (label: string) =>
+  label.substring(0, 20).replace(/[^A-Za-z\-_0-9À-ž\s]/g, "");
 const kebabify = (label: string) =>
   label
     .toLowerCase()
