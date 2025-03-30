@@ -1,11 +1,17 @@
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { bearerAuth } from "hono/bearer-auth";
 import { imageToArray } from "./image-processor.ts";
 import { GamesDatabase } from "./games.ts";
 import retrieveImage from "./unsplash.ts";
 
 export default function createApp(kv: Deno.Kv) {
+  const auth = bearerAuth({
+    token: Deno.env.get("ADMIN_ACCESS_KEY") ?? crypto.randomUUID(),
+  });
+
   // GAME ROUTES
   const db = new GamesDatabase(kv);
   const gameRouter = new Hono();
@@ -48,6 +54,18 @@ export default function createApp(kv: Deno.Kv) {
       return ctx.json({
         success: true,
         id,
+      });
+    },
+  );
+
+  gameRouter.delete(
+    "/:game",
+    auth,
+    async (ctx) => {
+      const id = ctx.req.param("game");
+      await db.remove(id);
+      return ctx.json({
+        success: true,
       });
     },
   );
@@ -97,6 +115,12 @@ export default function createApp(kv: Deno.Kv) {
   // MAIN ROUTER
   const app = new Hono();
   app.onError((err, ctx) => {
+    if (err instanceof HTTPException) {
+      console.dir(err);
+      return ctx.json({
+        success: false,
+      }, err.status);
+    }
     console.error(err);
     return ctx.json({
       success: false,

@@ -45,6 +45,10 @@ export class GamesDatabase {
     return result.value;
   }
 
+  async remove(id: string) {
+    await this.#pool.delete([...GAMES_BY_ID_IDX, id]);
+  }
+
   async save(game: string, label: string) {
     const id = shortid();
     const normalizedLabel = label ? normalize(label) : "";
