@@ -35,8 +35,6 @@ export class GamesDatabase {
         colors,
         colorScheme,
         label: row.value.label,
-        did: row.value.did,
-        key: row.key,
       });
     }
 
@@ -49,8 +47,14 @@ export class GamesDatabase {
   }
 
   async remove(id: string) {
-    await this.#pool.delete([...GAMES_BY_ID_IDX, id]);
-    await this.#pool.delete([...GAMES_BY_DATE_IDX, id]);
+    const game = await this.retrieve(id);
+    if (!game) {
+      return;
+    }
+    await Promise.all([
+      await this.#pool.delete([...GAMES_BY_ID_IDX, id]),
+      await this.#pool.delete([...GAMES_BY_DATE_IDX, game.did]),
+    ]);
   }
 
   async save(game: string, label: string) {
