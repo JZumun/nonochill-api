@@ -10,6 +10,7 @@ export interface GameEntry {
   id: string;
   game: string;
   label: string;
+  did: string;
 }
 
 export class GamesDatabase {
@@ -34,6 +35,8 @@ export class GamesDatabase {
         colors,
         colorScheme,
         label: row.value.label,
+        did: row.value.did,
+        key: row.key,
       });
     }
 
@@ -47,6 +50,7 @@ export class GamesDatabase {
 
   async remove(id: string) {
     await this.#pool.delete([...GAMES_BY_ID_IDX, id]);
+    await this.#pool.delete([...GAMES_BY_DATE_IDX, id]);
   }
 
   async save(game: string, label: string) {
@@ -59,6 +63,7 @@ export class GamesDatabase {
       id: fullId,
       game,
       label: normalizedLabel,
+      did,
     };
 
     await Promise.all([
