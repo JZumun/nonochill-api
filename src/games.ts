@@ -1,6 +1,8 @@
 import { deserialize } from "./serializer.js";
-import { nanoid as shortid } from "nanoid";
+import { customAlphabet } from "nanoid";
 import { ulid } from "@std/ulid";
+
+const shortid = customAlphabet("0123456789abcdefghijkmnpqrstuvwxyz", 16);
 
 const GAMES_TABLE = "games";
 const GAMES_BY_ID_IDX = [GAMES_TABLE, "id"];
